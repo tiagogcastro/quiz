@@ -1,4 +1,4 @@
-interface AlternativeProps {
+export interface AlternativeProps {
   id: string;
   text: string;
   isCorrect: boolean;
