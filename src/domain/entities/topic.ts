@@ -1,4 +1,4 @@
-interface TopicProps {
+export interface TopicProps {
   id: string;
   name: string;
 }
