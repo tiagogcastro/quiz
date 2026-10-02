@@ -1,4 +1,5 @@
 import { Question } from '@/domain/entities/question';
+import { QuizError } from '@/domain/errors/quiz-errors';
 import { Result } from '@/shared/result';
 
 interface QuizProps {
@@ -8,29 +9,25 @@ interface QuizProps {
   questions: Question[];
 }
 
-export type AddQuestionError = "QUESTION_ALREADY_EXISTS";
-
 export class Quiz {
-  private constructor(private props: QuizProps) { }
+  private constructor(private readonly props: QuizProps) {}
 
   static create(props: QuizProps): Quiz {
-    return new Quiz(props);
+    return new Quiz({ ...props, questions: [...props.questions] });
   }
 
-  addQuestion(question: Question): Result<void, AddQuestionError> {
-    const questionAlreadyExists = this.props.questions.some(item => question.id === item.id);
-
-    if (questionAlreadyExists) {
+  addQuestion(question: Question): Result<void, QuizError> {
+    if (this.props.questions.some((item) => question.id === item.id)) {
       return {
         error: 'QUESTION_ALREADY_EXISTS',
-      }
+      };
     }
 
     this.props.questions.push(question);
 
     return {
       data: undefined,
-    }
+    };
   }
 
   get id(): string {

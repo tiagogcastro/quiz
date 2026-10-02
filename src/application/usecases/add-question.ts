@@ -1,23 +1,25 @@
-import { Alternative, AlternativeProps } from '@/domain/entities/alternative';
-import { CreateQuestionError, Question } from '@/domain/entities/question';
-import { AddQuestionError } from '@/domain/entities/quiz';
+import { QuizApplicationError } from '@/application/errors/quiz-errors';
+import { Alternative } from '@/domain/entities/alternative';
+import { Question } from '@/domain/entities/question';
+import { QuestionError } from '@/domain/errors/question-errors';
+import { QuizError } from '@/domain/errors/quiz-errors';
 import { QuizRepository } from '@/domain/repositories/quiz-repository';
 import { Result } from '@/shared/result';
 
 interface AddQuestionInput {
   quizId: string;
   statement: string;
-  alternatives: Array<Omit<AlternativeProps, 'id'>>;
+  alternatives: { text: string; isCorrect: boolean }[];
 }
 
-type AddQuestionUseCaseError = 'QUIZ_NOT_FOUND' | CreateQuestionError | AddQuestionError;
+type AddQuestionError = QuizApplicationError | QuestionError | QuizError;
 
 export class AddQuestionUseCase {
   constructor(
     private readonly quizRepository: QuizRepository,
   ) { }
 
-  async execute(input: AddQuestionInput): Promise<Result<Question, AddQuestionUseCaseError>> {
+  async execute(input: AddQuestionInput): Promise<Result<Question, AddQuestionError>> {
     const quiz = await this.quizRepository.findById(input.quizId);
 
     if (!quiz) {
@@ -26,18 +28,14 @@ export class AddQuestionUseCase {
       };
     }
 
-    const alternatives = input.alternatives.map((alternative) => {
-      return Alternative.create({
-        id: crypto.randomUUID(),
-        text: alternative.text,
-        isCorrect: alternative.isCorrect,
-      });
-    });
-
     const questionResult = Question.create({
       id: crypto.randomUUID(),
       statement: input.statement,
-      alternatives,
+      alternatives: input.alternatives.map((alternative) => Alternative.create({
+        id: crypto.randomUUID(),
+        text: alternative.text,
+        isCorrect: alternative.isCorrect,
+      })),
     });
 
     if (questionResult.error) {

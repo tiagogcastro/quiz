@@ -1,11 +1,11 @@
-export interface AlternativeProps {
+interface AlternativeProps {
   id: string;
   text: string;
   isCorrect: boolean;
 }
 
 export class Alternative {
-  private constructor(private props: AlternativeProps) { }
+  private constructor(private readonly props: AlternativeProps) {}
 
   static create(props: AlternativeProps): Alternative {
     return new Alternative(props);

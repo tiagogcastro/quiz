@@ -4,7 +4,7 @@ import { CreateTopicController } from '@/infrastructure/http/controllers/create-
 
 export function makeCreateTopicController(
   topicRepository: TopicRepository,
-) {
+): CreateTopicController {
   const useCase = new CreateTopicUseCase(topicRepository);
   const controller = new CreateTopicController(useCase);
 
